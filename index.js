@@ -1,44 +1,28 @@
 import express, { json } from "express";
+import prisma from "./database.js";
 
 const PORT = 3000
 const app = express()
 app.use(json())
 
-// dummy books data
-const books = [
-  {
-    id: 1,
-    title: "Mein Kampf",
-    author: "Adolf Hitler",
-    year: 1925
-  },
-  {
-    id: 2,
-    title: "Mein Kampf",
-    author: "Adolf Hitler",
-    year: 1925
-  }
-]
-
-// dummy id increment
-let increment = 3
-
+// books endpoints
 app.get('/', (req, res) => {
     res.send("LibraryAPI is running")
 })
 
-app.get('/books', (req, res) => {
-    res.send(books)
+app.get('/books', async (req, res) => {
+  const books = await prisma.books.findMany()
+  res.send(books)
 })
 
-app.get('/books/:id', (req, res) => {
+app.get('/books/:id', async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
       return res.send("Missing or invalid parameter(s)")
     }
 
-    const book = books.find(book => book.id === id)
+    const book = await prisma.books.findUnique({ where: { id } })
 
     if (!book) {
       return res.send("Book not found")
@@ -47,26 +31,23 @@ app.get('/books/:id', (req, res) => {
     res.send(book)
 })
 
-app.post('/books', (req, res) => {
+app.post('/books', async (req, res) => {
   const { title, author, year } = req.body
 
   if (!(title && author && year)) {
     return res.send("Missing or invalid parameter(s)")
   }
 
-  books.push({
-    id: increment,
+  await prisma.books.create({ data: {
     title,
     author,
     year
-  })
-
-  increment++
+  }})
 
   res.send("Success")
 })
 
-app.put('/books/:id', (req, res) => {
+app.put('/books/:id', async (req, res) => {
   const id = parseInt(req.params.id)
   const { title, author, year } = req.body
 
@@ -74,18 +55,21 @@ app.put('/books/:id', (req, res) => {
     return res.send("Missing or invalid parameter(s)")
   }
 
-  const index = books.findIndex(book => book.id === id)
+  const book = await prisma.books.findUnique({ where: { id } })
 
-  if (index === -1) {
+  if (!book) {
     return res.send("Book not found")
   }
 
-  books[index] = {
-    id,
-    title,
-    author,
-    year
-  }
+  await prisma.books.update({
+    where: { id },
+    data: {
+      id,
+      title,
+      author,
+      year
+    }
+  })
 
   res.send("Success")
 })
@@ -94,20 +78,106 @@ app.patch('/books', (req, res) => {
   res.send("/books PATCH endpoint")
 })
 
-app.delete('/books/:id', (req, res) => {
+app.delete('/books/:id', async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
     return res.send("Missing or invalid parameter(s)")
   }
 
-  const index = books.findIndex(book => book.id === id)
+  const book = await prisma.books.findUnique({ where: { id } })
 
-  if (index === -1) {
+  if (!book) {
     return res.send("Book not found")
   }
 
-  books.splice(index, 1)
+  await prisma.books.delete({ where: { id } })
+
+  res.send("Success")
+})
+
+// users endpoints
+app.get('/users', async (req, res) => {
+  const users = await prisma.users.findMany()
+  res.send(users)
+})
+
+app.get('/users/:id', async (req, res) => {
+    const id = parseInt(req.params.id)
+
+    if (isNaN(id)) {
+      return res.send("Missing or invalid parameter(s)")
+    }
+
+    const user = await prisma.users.findUnique({ where: { id } })
+
+    if (!user) {
+      return res.send("User not found")
+    }
+
+    res.send(user)
+})
+
+app.post('/users', async (req, res) => {
+  const { name, email, password } = req.body
+
+  if (!(name && email && password)) {
+    return res.send("Missing or invalid parameter(s)")
+  }
+
+  await prisma.users.create({ data: {
+    name,
+    email,
+    password
+  }})
+
+  res.send("Success")
+})
+
+app.put('/users/:id', async (req, res) => {
+  const id = parseInt(req.params.id)
+  const { name, email, password } = req.body
+
+  if (!(name && email && password) || isNaN(id)) {
+    return res.send("Missing or invalid parameter(s)")
+  }
+
+  const user = await prisma.users.findUnique({ where: { id } })
+
+  if (!user) {
+    return res.send("User not found")
+  }
+
+  await prisma.users.update({
+    where: { id },
+    data: {
+      name,
+      email,
+      password
+    }
+  })
+
+  res.send("Success")
+})
+
+app.patch('/users', (req, res) => {
+  res.send("/users PATCH endpoint")
+})
+
+app.delete('/users/:id', async (req, res) => {
+  const id = parseInt(req.params.id)
+
+  if (isNaN(id)) {
+    return res.send("Missing or invalid parameter(s)")
+  }
+
+  const user = await prisma.users.findUnique({ where: { id } })
+
+  if (!user) {
+    return res.send("User not found")
+  }
+
+  await prisma.users.delete({ where: { id } })
 
   res.send("Success")
 })
