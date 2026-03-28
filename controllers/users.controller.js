@@ -1,19 +1,12 @@
-import express, { json } from "express";
-import router from "./routes/index.route.js";
+import bcrypt from 'bcrypt'
+import prisma from "../configs/database.config.js"
 
-const PORT = 3000
-const app = express()
-
-app.use(json())
-app.use(router)
-
-// users endpoints
-app.get('/users', async (req, res) => {
+export const getUsers = async (req, res) => {
   const users = await prisma.users.findMany()
   res.send(users)
-})
+}
 
-app.get('/users/:id', async (req, res) => {
+export const getUserById = async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
@@ -27,9 +20,9 @@ app.get('/users/:id', async (req, res) => {
     }
 
     res.send(user)
-})
+}
 
-app.post('/users', async (req, res) => {
+export const createUser = async (req, res) => {
   const { name, email, password } = req.body
 
   if (!(name && email && password)) {
@@ -39,13 +32,13 @@ app.post('/users', async (req, res) => {
   await prisma.users.create({ data: {
     name,
     email,
-    password
+    password: bcrypt.hashSync(password, 10)
   }})
 
   res.send("Success")
-})
+}
 
-app.put('/users/:id', async (req, res) => {
+export const updateUser = async (req, res) => {
   const id = parseInt(req.params.id)
   const { name, email, password } = req.body
 
@@ -69,13 +62,9 @@ app.put('/users/:id', async (req, res) => {
   })
 
   res.send("Success")
-})
+}
 
-app.patch('/users', (req, res) => {
-  res.send("/users PATCH endpoint")
-})
-
-app.delete('/users/:id', async (req, res) => {
+export const deleteUser = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
@@ -91,8 +80,4 @@ app.delete('/users/:id', async (req, res) => {
   await prisma.users.delete({ where: { id } })
 
   res.send("Success")
-})
-
-app.listen(PORT, () => {
-    console.log(`Listening to port ${PORT}`)
-})
+}
