@@ -1,6 +1,8 @@
 import express from 'express'
 import { booksRouter } from './books.route.js'
 import { usersRouter } from './users.route.js'
+import { profilesRouter } from './profiles.route.js'
+import { categoriesRouter } from './categories.route.js'
 
 const router = express.Router()
 
@@ -10,5 +12,7 @@ router.get('/', (req, res) => {
 
 router.use('/users', usersRouter)
 router.use('/books', booksRouter)
+router.use('/profiles', profilesRouter)
+router.use('/categories', categoriesRouter)
 
 export default router

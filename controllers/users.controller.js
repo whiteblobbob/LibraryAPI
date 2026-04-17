@@ -7,19 +7,38 @@ export const getUsers = async (req, res) => {
 }
 
 export const getUserById = async (req, res) => {
-    const id = parseInt(req.params.id)
+  const id = parseInt(req.params.id)
 
-    if (isNaN(id)) {
-      return res.send("Missing or invalid parameter(s)")
-    }
+  if (isNaN(id)) {
+    return res.send("Missing or invalid parameter(s)")
+  }
 
-    const user = await prisma.users.findUnique({ where: { id } })
+  const user = await prisma.users.findUnique({ where: { id } })
 
-    if (!user) {
-      return res.send("User not found")
-    }
+  if (!user) {
+    return res.send("User not found")
+  }
 
-    res.send(user)
+  res.send(user)
+}
+
+export const getUserByIdWithProfile = async (req, res) => {
+  const id = parseInt(req.params.id)
+
+  if (isNaN(id)) {
+    return res.send("Missing or invalid parameter(s)")
+  }
+
+  const user = await prisma.users.findUnique({
+    where: { id },
+    include: { profile: true }
+  })
+
+  if (!user) {
+    return res.send("User not found")
+  }
+
+  res.send(user)
 }
 
 export const createUser = async (req, res) => {
