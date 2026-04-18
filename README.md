@@ -150,7 +150,6 @@ libraryapi/
 ├── package.json      # Project dependencies and scripts
 ├── prisma.config.js  # Prisma configuration
 └── README.md         # Project documentation
-```
 ├── index.js          # Application entry point
 ├── package.json      # Project dependencies
 └── README.md         # This file
