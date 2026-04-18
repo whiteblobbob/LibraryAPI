@@ -25,8 +25,46 @@ A RESTful API for managing a library system with user authentication, book manag
 - Book catalog management
 - Category organization for books
 - User profiles with contact information
+- Borrowing system for books
 - Role-based access control (USER role)
 - Secure password hashing
+
+## API Endpoints
+
+### Users
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `POST /users` - Create a new user
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+### Books
+- `GET /books` - Get all books
+- `GET /books/:id` - Get book by ID
+- `POST /books` - Create a new book
+- `PUT /books/:id` - Update book
+- `DELETE /books/:id` - Delete book
+
+### Categories
+- `GET /categories` - Get all categories
+- `GET /categories/:id` - Get category by ID
+- `POST /categories` - Create a new category
+- `PUT /categories/:id` - Update category
+- `DELETE /categories/:id` - Delete category
+
+### Profiles
+- `GET /profiles` - Get all profiles
+- `GET /profiles/:id` - Get profile by ID
+- `POST /profiles` - Create a new profile
+- `PUT /profiles/:id` - Update profile
+- `DELETE /profiles/:id` - Delete profile
+
+### Borrowings
+- `GET /borrowings` - Get all borrowings
+- `GET /borrowings/:id` - Get borrowing by ID
+- `POST /borrowings` - Create a new borrowing
+- `PUT /borrowings/:id` - Update borrowing
+- `DELETE /borrowings/:id` - Delete borrowing
 
 ## Installation
 
@@ -65,6 +103,11 @@ A RESTful API for managing a library system with user authentication, book manag
    npx prisma generate
    ```
 
+6. **Seed the database (optional)**
+   ```bash
+   npm run seed
+   ```
+
 ## Running the Project
 
 ### Development Mode
@@ -86,18 +129,28 @@ libraryapi/
 │   └── database.config.js
 ├── controllers/       # Request handlers
 │   ├── books.controller.js
+│   ├── borrowings.controller.js
 │   ├── categories.controller.js
 │   ├── profiles.controller.js
 │   └── users.controller.js
-├── routes/           # API route definitions
-│   ├── books.route.js
-│   ├── categories.route.js
-│   ├── profiles.route.js
-│   ├── users.route.js
-│   └── index.route.js
+├── generated/         # Generated Prisma client
+│   └── prisma/
 ├── prisma/           # Prisma schema and migrations
 │   ├── schema.prisma
+│   ├── seed.js
 │   └── migrations/
+├── routes/           # API route definitions
+│   ├── books.route.js
+│   ├── borrowings.route.js
+│   ├── categories.route.js
+│   ├── index.route.js
+│   ├── profiles.route.js
+│   └── users.route.js
+├── index.js          # Main application entry point
+├── package.json      # Project dependencies and scripts
+├── prisma.config.js  # Prisma configuration
+└── README.md         # Project documentation
+```
 ├── index.js          # Application entry point
 ├── package.json      # Project dependencies
 └── README.md         # This file
