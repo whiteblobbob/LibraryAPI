@@ -22,6 +22,7 @@ model Users {
 
   // relation
   profile Profiles?
+  borrowings Borrowings[]
 }
 
 model Books {
@@ -35,6 +36,7 @@ model Books {
 
   // n:1
   category Categories @relation(fields: [categoryId], references: [id])
+  borrowings Borrowings[]
 }
 
 model Profiles {
@@ -55,4 +57,17 @@ model Categories {
   
   // 1:n
   books Books[]
+}
+
+model Borrowings {
+  id Int @id @default(autoincrement())
+  userId Int
+  bookId Int
+  borrowDate DateTime @default(now())
+  returnedAt DateTime?
+  createdAt DateTime @default(now())
+
+  // n:n (as pivot)
+  borrower Users @relation(fields: [userId], references: [id])
+  book Books @relation(fields: [bookId], references: [id])
 }
