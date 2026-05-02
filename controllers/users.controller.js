@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import prisma from "../configs/database.config.js"
 import { validationResult } from "express-validator"
+import 'dotenv/config'
 
 export const getUsers = async (req, res) => {
   const users = await prisma.users.findMany()
@@ -55,7 +56,7 @@ export const createUser = async (req, res) => {
     name,
     email,
     role,
-    password: bcrypt.hashSync(password, 10)
+    password: bcrypt.hashSync(password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
   }})
 
   return res.status(201).json("Success")
