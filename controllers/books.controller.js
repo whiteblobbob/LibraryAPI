@@ -1,3 +1,4 @@
+import { validationResult } from "express-validator"
 import prisma from "../configs/database.config.js"
 
 export const getBooks = async (req, res) => {
@@ -22,12 +23,14 @@ export const getBookById = async (req, res) => {
 }
 
 export const createBook = async (req, res) => {
+  const validationErrors = validationResult(req)
+
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
+  }
+
   const categoryId = parseInt(req.body.categoryId)
   const { title, author, year } = req.body
-
-  if (!(title && author && year) || isNaN(categoryId)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
-  }
 
   const category = await prisma.categories.findUnique({ where: { id: categoryId } })
 
@@ -48,14 +51,16 @@ export const createBook = async (req, res) => {
 }
 
 export const updateBook = async (req, res) => {
+  const validationErrors = validationResult(req)
+
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
+  }
+
   const id = parseInt(req.params.id)
   const categoryId = parseInt(req.body.categoryId)
-
+  
   const { title, author, year } = req.body
-
-  if (!(title && author && year) || isNaN(id) || isNaN(categoryId)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
-  }
 
   const book = await prisma.books.findUnique({ where: { id } })
 

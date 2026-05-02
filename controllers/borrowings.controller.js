@@ -1,3 +1,4 @@
+import { validationResult } from "express-validator"
 import prisma from "../configs/database.config.js"
 
 const isUserExists = async (userId) => {
@@ -53,12 +54,14 @@ export const getBorrowingById = async (req, res) => {
 }
 
 export const createBorrowing = async (req, res) => {
+  const validationErrors = validationResult(req)
+
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
+  }
+
   const userId = parseInt(req.body.userId)
   const bookId = parseInt(req.body.bookId)
-
-  if (isNaN(userId) || isNaN(bookId)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
-  }
 
   if (!(await isUserExists(userId))) {
     return res.status(404).json("User not found")

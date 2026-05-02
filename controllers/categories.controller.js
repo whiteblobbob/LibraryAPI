@@ -42,11 +42,13 @@ export const getCategoryByIdWithBooks = async (req, res) => {
 }
 
 export const createCategory = async (req, res) => {
-  const { name } = req.body
+  const validationErrors = validationResult(req)
 
-  if (!name) {
-    return res.status(400).json("Missing or invalid parameter(s)")
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
   }
+
+  const { name } = req.body
 
   await prisma.categories.create({
     data: { name }
@@ -56,12 +58,14 @@ export const createCategory = async (req, res) => {
 }
 
 export const updateCategory = async (req, res) => {
+  const validationErrors = validationResult(req)
+
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
+  }
+
   const id = parseInt(req.params.id)
   const { name } = req.body
-
-  if (!name || isNaN(id)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
-  }
 
   const category = await prisma.categories.findUnique({ where: { id } })
 

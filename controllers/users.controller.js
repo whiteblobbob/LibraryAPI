@@ -42,11 +42,13 @@ export const getUserByIdWithProfile = async (req, res) => {
 }
 
 export const createUser = async (req, res) => {
-  const { name, email, password } = req.body
+  const validationErrors = validationResult(req)
 
-  if (!(name && email && password)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
   }
+
+  const { name, email, password } = req.body
 
   await prisma.users.create({ data: {
     name,
@@ -58,12 +60,14 @@ export const createUser = async (req, res) => {
 }
 
 export const updateUser = async (req, res) => {
+  const validationErrors = validationResult(req)
+
+  if (!validationErrors.isEmpty()) {
+    return res.status(400).json(validationErrors.array())
+  }
+
   const id = parseInt(req.params.id)
   const { name, email, password } = req.body
-
-  if (!(name && email && password) || isNaN(id)) {
-    return res.status(400).json("Missing or invalid parameter(s)")
-  }
 
   const user = await prisma.users.findUnique({ where: { id } })
 
