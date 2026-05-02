@@ -1,8 +1,21 @@
 # Library API
 
-A RESTful API for managing a library system with user authentication, book management, categories, and user profiles.
+A RESTful backend API for managing a library system with user authentication, book management, categories, profiles, and borrowings.
 
-## Project Information
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Scripts](#scripts)
+- [API Endpoints](#api-endpoints)
+- [Authentication](#authentication)
+- [Project Structure](#project-structure)
+- [Notes](#notes)
+
+## Project Overview
 
 - **Name:** LibraryAPI
 - **Version:** 1.0.0
@@ -12,219 +25,133 @@ A RESTful API for managing a library system with user authentication, book manag
 
 ## Tech Stack
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** PostgreSQL
-- **ORM:** Prisma
-- **Authentication:** bcrypt for password hashing
-- **Development:** Nodemon for hot-reloading
+- Node.js
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- bcrypt / JSON Web Tokens
+- Nodemon (development)
 
 ## Features
 
-- User management with authentication
+- User authentication and registration
+- JWT-based authorization
+- Role-based access control
 - Book catalog management
-- Category organization for books
-- User profiles with contact information
-- Borrowing system for books
-- Role-based access control (USER role)
-- Secure password hashing
+- Category management
+- User profile management
+- Borrowing records and tracking
 
-## API Endpoints
+## Requirements
 
-### Users
-- `GET /users` - Get all users
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create a new user
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
-
-### Books
-- `GET /books` - Get all books
-- `GET /books/:id` - Get book by ID
-- `POST /books` - Create a new book
-- `PUT /books/:id` - Update book
-- `DELETE /books/:id` - Delete book
-
-### Categories
-- `GET /categories` - Get all categories
-- `GET /categories/:id` - Get category by ID
-- `POST /categories` - Create a new category
-- `PUT /categories/:id` - Update category
-- `DELETE /categories/:id` - Delete category
-
-### Profiles
-- `GET /profiles` - Get all profiles
-- `GET /profiles/:id` - Get profile by ID
-- `POST /profiles` - Create a new profile
-- `PUT /profiles/:id` - Update profile
-- `DELETE /profiles/:id` - Delete profile
-
-### Borrowings
-- `GET /borrowings` - Get all borrowings
-- `GET /borrowings/:id` - Get borrowing by ID
-- `POST /borrowings` - Create a new borrowing
-- `PUT /borrowings/:id` - Update borrowing
-- `DELETE /borrowings/:id` - Delete borrowing
-
-## Installation
-
-### Prerequisites
-
-- Node.js (v16 or higher)
+- Node.js 16+
 - PostgreSQL database
-- npm or yarn
+- npm
 
-### Setup Steps
+## Setup
 
-1. **Clone the repository**
+1. Clone the repository:
    ```bash
    git clone <repository-url>
    cd libraryapi
    ```
 
-2. **Install dependencies**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Configure environment variables**
-   Create a `.env` file in the root directory with:
-   ```
+3. Create a `.env` file at the repository root with your database URL:
+   ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/librarydb"
    ```
 
-4. **Setup the database**
+4. Run Prisma migrations and generate the client:
    ```bash
    npx prisma migrate dev
-   ```
-
-5. **Generate Prisma Client**
-   ```bash
    npx prisma generate
    ```
 
-6. **Seed the database (optional)**
+5. Seed the database (optional):
    ```bash
    npm run seed
    ```
 
-## Running the Project
+## Scripts
 
-### Development Mode
-```bash
-npm run dev
-```
-The API will start on `http://localhost:3000` (or your configured port)
+- `npm run dev` — start the app with `nodemon`
+- `npm run seed` — run the Prisma seed script
 
-### Production Mode
-```bash
-node index.js
-```
+## API Endpoints
+
+### Authentication
+- `POST /auth/register` — register a new user
+- `POST /auth/login` — login and receive a JWT
+
+### Users
+- `GET /users` — get all users
+- `GET /users/:id` — get user by ID
+- `POST /users` — create a user
+- `PUT /users/:id` — update user
+- `DELETE /users/:id` — delete user
+
+### Books
+- `GET /books` — get all books
+- `GET /books/:id` — get a book by ID
+- `POST /books` — create a book
+- `PUT /books/:id` — update a book
+- `DELETE /books/:id` — delete a book
+
+### Categories
+- `GET /categories` — get all categories
+- `GET /categories/:id` — get a category by ID
+- `GET /categories/:id/books` — get books in a category
+- `POST /categories` — create a category
+- `PUT /categories/:id` — update a category
+- `DELETE /categories/:id` — delete a category
+
+### Profiles
+- `GET /profiles` — get all profiles
+- `GET /profiles/:id` — get a profile by ID
+- `POST /profiles` — create a profile
+- `PUT /profiles/:id` — update a profile
+- `DELETE /profiles/:id` — delete a profile
+
+### Borrowings
+- `GET /borrowings` — get all borrowings
+- `GET /borrowings/:id` — get a borrowing by ID
+- `POST /borrowings` — create a borrowing record
+- `PUT /borrowings/:id` — update a borrowing record
+- `DELETE /borrowings/:id` — delete a borrowing record
+
+## Authentication
+
+- Protect routes with JWT.
+- Send tokens using the header:
+  ```http
+  Authorization: Bearer <token>
+  ```
+- Admin-only routes include user, profile, borrowing, and category management actions.
 
 ## Project Structure
 
 ```
 libraryapi/
-├── configs/           # Configuration files
-│   └── database.config.js
-├── controllers/       # Request handlers
-│   ├── books.controller.js
-│   ├── borrowings.controller.js
-│   ├── categories.controller.js
-│   ├── profiles.controller.js
-│   └── users.controller.js
-├── generated/         # Generated Prisma client
-│   └── prisma/
-├── prisma/           # Prisma schema and migrations
-│   ├── schema.prisma
-│   ├── seed.js
-│   └── migrations/
-├── routes/           # API route definitions
-│   ├── books.route.js
-│   ├── borrowings.route.js
-│   ├── categories.route.js
-│   ├── index.route.js
-│   ├── profiles.route.js
-│   └── users.route.js
-├── index.js          # Main application entry point
-├── package.json      # Project dependencies and scripts
-├── prisma.config.js  # Prisma configuration
-└── README.md         # Project documentation
-├── index.js          # Application entry point
-├── package.json      # Project dependencies
-└── README.md         # This file
+├── configs/           # configuration files
+├── controllers/       # request handlers
+├── generated/         # generated Prisma client
+├── middlewares/       # auth and authorization middleware
+├── prisma/            # schema, migrations, and seed script
+├── routes/            # route definitions
+├── validations/       # request validation logic
+├── index.js           # application entry point
+├── package.json       # dependencies and scripts
+├── prisma.config.js   # Prisma config
+└── README.md          # project documentation
 ```
 
-## Database Schema
+## Notes
 
-### Users Table
-- `id` (Int) - Primary key, auto-increment
-- `name` (String) - User's full name
-- `email` (String) - Unique email address
-- `password` (String) - Hashed password
-- `role` (String) - User role (default: "USER")
-- `createdAt` (DateTime) - Account creation timestamp
-
-### Books Table
-- `id` (Int) - Primary key, auto-increment
-- `categoryId` (Int) - Foreign key to Categories
-- `title` (String) - Book title
-- `author` (String) - Book author
-- `year` (Int) - Publication year
-- `available` (Boolean) - Availability status (default: true)
-- `createdAt` (DateTime) - Record creation timestamp
-
-### Profiles Table
-- `id` (Int) - Primary key, auto-increment
-- `userId` (Int) - Unique foreign key to Users
-- `address` (String, optional) - User's address
-- `phone` (String, optional) - User's phone number
-- `createdAt` (DateTime) - Record creation timestamp
-
-### Categories Table
-- Used for organizing books by category
-
-## API Endpoints
-
-### Users
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/:id` - Update user
-- `DELETE /api/users/:id` - Delete user
-
-### Books
-- `GET /api/books` - Get all books
-- `GET /api/books/:id` - Get book by ID
-- `POST /api/books` - Create new book
-- `PUT /api/books/:id` - Update book
-- `DELETE /api/books/:id` - Delete book
-
-### Categories
-- `GET /api/categories` - Get all categories
-- `GET /api/categories/:id` - Get category by ID
-- `POST /api/categories` - Create new category
-- `PUT /api/categories/:id` - Update category
-- `DELETE /api/categories/:id` - Delete category
-
-### Profiles
-- `GET /api/profiles` - Get all profiles
-- `GET /api/profiles/:id` - Get profile by ID
-- `POST /api/profiles` - Create new profile
-- `PUT /api/profiles/:id` - Update profile
-- `DELETE /api/profiles/:id` - Delete profile
-
-## Development Notes
-
-- Password hashing is handled automatically by bcrypt
-- All timestamps are automatically managed by the database
-- User profiles are optional (one-to-one relationship with users)
-- Books must belong to a category
-
-## Contributing
-
-This is a school project for the Primakara Developers 2026 Intermediate Class.
-
----
-
-**Last Updated:** April 2026
+- Server listens on `http://localhost:3000`
+- Most endpoints require authentication
+- Use the `/auth` routes to obtain a valid JWT before calling protected routes
