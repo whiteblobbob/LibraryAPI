@@ -3,23 +3,23 @@ import prisma from "../configs/database.config.js"
 export const getProfiles = async (req, res) => {
   const profiles = await prisma.profiles.findMany()
 
-  return res.send(profiles)
+  return res.status(200).json(profiles)
 }
 
 export const getProfileById = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const profile = await prisma.profiles.findUnique({ where: { id } })
 
   if (!profile) {
-    return res.send("Profile not found")
+    return res.status(404).json("Profile not found")
   }
 
-  return res.send(profile)
+  return res.status(200).json(profile)
 }
 
 export const createProfile = async (req, res) => {
@@ -27,7 +27,7 @@ export const createProfile = async (req, res) => {
   const { address, phone } = req.body
 
   if (isNaN(userId)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const user = await prisma.users.findUnique({
@@ -35,7 +35,7 @@ export const createProfile = async (req, res) => {
   })
 
   if (!user) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
   await prisma.profiles.create({
@@ -46,7 +46,7 @@ export const createProfile = async (req, res) => {
     }
   })
 
-  return res.send("Success")
+  return res.status(201).json("Success")
 }
 
 export const updateProfile = async (req, res) => {
@@ -54,13 +54,13 @@ export const updateProfile = async (req, res) => {
   const { address, phone } = req.body
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const profile = await prisma.profiles.findUnique({ where: { id } })
 
   if (!profile) {
-    return res.send("Profile not found")
+    return res.status(404).json("Profile not found")
   }
 
   await prisma.profiles.update({
@@ -68,23 +68,23 @@ export const updateProfile = async (req, res) => {
     data: { address, phone }
   })
 
-  return res.send("Success")
+  return res.status(200).json("Success")
 }
 
 export const deleteProfile = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const profile = await prisma.profiles.findUnique({ where: { id } })
 
   if (!profile) {
-    return res.send("Profile not found")
+    return res.status(404).json("Profile not found")
   }
 
   await prisma.profiles.delete({ where: { id } })
 
-  return res.send("Success")
+  return res.status(200).json("Success")
 }

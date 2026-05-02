@@ -25,14 +25,14 @@ export const getBorrowings = async (req, res) => {
     }
   })
 
-  return res.send(borrowings)
+  return res.status(200).json(borrowings)
 }
 
 export const getBorrowingById = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(200).json("Missing or invalid parameter(s)")
   }
 
   const borrowing = await prisma.borrowings.findUnique({
@@ -46,10 +46,10 @@ export const getBorrowingById = async (req, res) => {
   })
 
   if (!borrowing) {
-    return res.send("Borrowing not found")
+    return res.status(404).json("Borrowing not found")
   }
 
-  return res.send(borrowing)
+  return res.status(200).json(borrowing)
 }
 
 export const createBorrowing = async (req, res) => {
@@ -57,15 +57,15 @@ export const createBorrowing = async (req, res) => {
   const bookId = parseInt(req.body.bookId)
 
   if (isNaN(userId) || isNaN(bookId)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   if (!(await isUserExists(userId))) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
   if (!(await isBookExists(bookId))) {
-    return res.send("Book not found")
+    return res.status(404).json("Book not found")
   }
 
   await prisma.borrowings.create({
@@ -84,7 +84,7 @@ export const createBorrowing = async (req, res) => {
     data: { available: false }
   })
 
-  return res.send("Success")
+  return res.status(201).json("Success")
 }
 
 export const updateBorrowing = async (req, res) => {
@@ -95,7 +95,7 @@ export const returnBook = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const borrowing = await prisma.borrowings.findUnique({
@@ -103,11 +103,11 @@ export const returnBook = async (req, res) => {
   })
 
   if (!borrowing) {
-    return res.send("Borrowing not found")
+    return res.status(404).json("Borrowing not found")
   }
 
   if (borrowing.returnedAt) {
-    return res.send("Book already returned")
+    return res.status(409).json("Book already returned")
   }
 
   await prisma.borrowings.update({
@@ -120,18 +120,22 @@ export const returnBook = async (req, res) => {
     data: { available: true }
   })
 
-  return res.send("Success")
+  return res.status(200).json("Success")
 }
 
 export const deleteBorrowing = async (req, res) => {
   const id = parseInt(req.params.id)
+
+  if (isNaN(id)) {
+    return res.status(400).json("Missing or invalid parameter(s)")
+  }
 
   const borrowing = await prisma.borrowings.findUnique({
     where: { id }
   })
 
   if (!borrowing) {
-    return res.send("Borrowing not found")
+    return res.status(404).json("Borrowing not found")
   }
 
   await prisma.borrowings.delete({
@@ -143,5 +147,5 @@ export const deleteBorrowing = async (req, res) => {
     data: { available: true }
   })
 
-  return res.send("Success")
+  return res.status(200).json("Success")
 }

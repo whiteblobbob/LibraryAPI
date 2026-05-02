@@ -3,30 +3,30 @@ import prisma from "../configs/database.config.js"
 
 export const getUsers = async (req, res) => {
   const users = await prisma.users.findMany()
-  res.send(users)
+  return res.status(200).json(users)
 }
 
 export const getUserById = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const user = await prisma.users.findUnique({ where: { id } })
 
   if (!user) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
-  res.send(user)
+  return res.status(200).json(user)
 }
 
 export const getUserByIdWithProfile = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const user = await prisma.users.findUnique({
@@ -35,17 +35,17 @@ export const getUserByIdWithProfile = async (req, res) => {
   })
 
   if (!user) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
-  res.send(user)
+  return res.status(200).json(user)
 }
 
 export const createUser = async (req, res) => {
   const { name, email, password } = req.body
 
   if (!(name && email && password)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   await prisma.users.create({ data: {
@@ -54,7 +54,7 @@ export const createUser = async (req, res) => {
     password: bcrypt.hashSync(password, 10)
   }})
 
-  res.send("Success")
+  return res.status(201).json("Success")
 }
 
 export const updateUser = async (req, res) => {
@@ -62,13 +62,13 @@ export const updateUser = async (req, res) => {
   const { name, email, password } = req.body
 
   if (!(name && email && password) || isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const user = await prisma.users.findUnique({ where: { id } })
 
   if (!user) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
   await prisma.users.update({
@@ -80,23 +80,23 @@ export const updateUser = async (req, res) => {
     }
   })
 
-  res.send("Success")
+  return res.status(200).json("Success")
 }
 
 export const deleteUser = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const user = await prisma.users.findUnique({ where: { id } })
 
   if (!user) {
-    return res.send("User not found")
+    return res.status(404).json("User not found")
   }
 
   await prisma.users.delete({ where: { id } })
 
-  res.send("Success")
+  return res.status(200).json("Success")
 }

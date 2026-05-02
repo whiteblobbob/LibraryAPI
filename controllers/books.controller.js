@@ -2,23 +2,23 @@ import prisma from "../configs/database.config.js"
 
 export const getBooks = async (req, res) => {
   const books = await prisma.books.findMany()
-  res.send(books)
+  return res.status(200).json(books)
 }
 
 export const getBookById = async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
-      return res.send("Missing or invalid parameter(s)")
+      return res.status(400).json("Missing or invalid parameter(s)")
     }
 
     const book = await prisma.books.findUnique({ where: { id } })
 
     if (!book) {
-      return res.send("Book not found")
+      return res.status(404).json("Book not found")
     }
 
-    res.send(book)
+    res.status(200).json(book)
 }
 
 export const createBook = async (req, res) => {
@@ -26,13 +26,13 @@ export const createBook = async (req, res) => {
   const { title, author, year } = req.body
 
   if (!(title && author && year) || isNaN(categoryId)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const category = await prisma.categories.findUnique({ where: { id: categoryId } })
 
   if (!category) {
-    return res.send("Category not found")
+    return res.status(404).json("Category not found")
   }
 
   await prisma.books.create({ data: {
@@ -44,7 +44,7 @@ export const createBook = async (req, res) => {
     }
   }})
 
-  res.send("Success")
+  res.status(201).json("Success")
 }
 
 export const updateBook = async (req, res) => {
@@ -54,19 +54,19 @@ export const updateBook = async (req, res) => {
   const { title, author, year } = req.body
 
   if (!(title && author && year) || isNaN(id) || isNaN(categoryId)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const book = await prisma.books.findUnique({ where: { id } })
 
   if (!book) {
-    return res.send("Book not found")
+    return res.status(404).json("Book not found")
   }
 
   const category = await prisma.categories.findUnique({ where: { id: categoryId } })
 
   if (!category) {
-    return res.send("Category not found")
+    return res.status(404).json("Category not found")
   }
 
   await prisma.books.update({
@@ -82,23 +82,23 @@ export const updateBook = async (req, res) => {
     }
   })
 
-  res.send("Success")
+  return res.status(404).json("Success")
 }
 
 export const deleteBook = async (req, res) => {
   const id = parseInt(req.params.id)
 
   if (isNaN(id)) {
-    return res.send("Missing or invalid parameter(s)")
+    return res.status(400).json("Missing or invalid parameter(s)")
   }
 
   const book = await prisma.books.findUnique({ where: { id } })
 
   if (!book) {
-    return res.send("Book not found")
+    return res.status(404).json("Book not found")
   }
 
   await prisma.books.delete({ where: { id } })
 
-  res.send("Success")
+  return res.status(200).json("Success")
 }
