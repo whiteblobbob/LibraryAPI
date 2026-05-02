@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import prisma from "../configs/database.config.js"
+import { validationResult } from "express-validator"
 
 export const getUsers = async (req, res) => {
   const users = await prisma.users.findMany()

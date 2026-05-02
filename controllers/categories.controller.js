@@ -1,4 +1,5 @@
 import prisma from "../configs/database.config.js"
+import { validationResult } from "express-validator"
 
 export const getCategories = async (req, res) => {
   const categories = await prisma.categories.findMany()
