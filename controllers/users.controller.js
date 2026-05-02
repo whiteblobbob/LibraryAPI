@@ -49,11 +49,12 @@ export const createUser = async (req, res) => {
     return res.status(400).json(validationErrors.array())
   }
 
-  const { name, email, password } = req.body
+  const { name, email, password, role } = req.body
 
   await prisma.users.create({ data: {
     name,
     email,
+    role,
     password: bcrypt.hashSync(password, 10)
   }})
 
@@ -68,7 +69,7 @@ export const updateUser = async (req, res) => {
   }
 
   const id = parseInt(req.params.id)
-  const { name, email, password } = req.body
+  const { name, email, password, role } = req.body
 
   const user = await prisma.users.findUnique({ where: { id } })
 
@@ -81,6 +82,7 @@ export const updateUser = async (req, res) => {
     data: {
       name,
       email,
+      role,
       password
     }
   })
