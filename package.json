@@ -8,6 +8,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate",
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
