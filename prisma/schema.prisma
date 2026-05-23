@@ -33,6 +33,7 @@ model Books {
   year Int
   available Boolean @default(true)
   createdAt DateTime @default(now())
+  cloudinaryId String?
 
   // n:1
   category Categories @relation(fields: [categoryId], references: [id])

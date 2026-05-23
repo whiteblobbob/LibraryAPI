@@ -12,15 +12,36 @@ export const bookValidation = [
     .notEmpty()
     .withMessage("Author is required"),
   body('year')
-    .isInt()
+    .isInt({ min: 1900 })
     .withMessage("Year must be above 1879")
     .notEmpty()
-    .withMessage("Year is required"),
+    .withMessage("Year is required")
+    .toInt(),
   body('categoryId')
     .isInt()
     .withMessage("Category ID must be a number")
     .notEmpty()
     .withMessage("Category ID is required")
+    .toInt(),
+  body('cover').custom((value, { req }) => {
+    const cover = req.file
+
+    if (!cover) {
+      return true // No file uploaded, so skip validation
+    }
+
+    // Check file type
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(cover.mimetype)) {
+      throw new Error('Cover must be a PNG or JPEG image')
+    }
+
+    // Check file size (max 1MB)
+    if (cover.size >= 1 * 1024 * 1024) {
+      throw new Error('Cover must be less than 1MB')
+    }
+
+    return true
+  }),
 ]
 
 export const updateBookValidation = [
@@ -47,5 +68,24 @@ export const updateBookValidation = [
     .isInt()
     .withMessage("Category ID must be a number")
     .notEmpty()
-    .withMessage("Category ID is required")
+    .withMessage("Category ID is required"),
+  body('cover').custom((value, { req }) => {
+    const cover = req.file
+
+    if (!cover) {
+      return true // No file uploaded, so skip validation
+    }
+
+    // Check file type
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(cover.mimetype)) {
+      throw new Error('Cover must be a PNG or JPEG image')
+    }
+
+    // Check file size (max 1MB)
+    if (cover.size >= 1 * 1024 * 1024) {
+      throw new Error('Cover must be less than 1MB')
+    }
+
+    return true
+  }),
 ]
