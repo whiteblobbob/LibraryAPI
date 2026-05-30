@@ -11,6 +11,7 @@ A RESTful backend API for managing a library system with user authentication, bo
 - [Setup](#setup)
 - [Scripts](#scripts)
 - [API Endpoints](#api-endpoints)
+- [Response Format](#response-format)
 - [Authentication](#authentication)
 - [Logging & Error Handling](#logging--error-handling)
 - [Project Structure](#project-structure)
@@ -148,6 +149,28 @@ A RESTful backend API for managing a library system with user authentication, bo
 ### Reviews
 - `POST /reviews` — create a review for a book (Authenticated Users)
 
+## Response Format
+
+All API responses follow a standardized JSON structure:
+
+### Success Response (2xx)
+```json
+{
+  "success": true,
+  "data": { ... }, // Optional: contains the requested data (object or array)
+  "message": "..." // Optional: success message (string)
+}
+```
+
+### Error Response (4xx/5xx)
+```json
+{
+  "success": false,
+  "message": "...", // Error message description
+  "errors": [ ... ] // Optional: array of validation errors
+}
+```
+
 ## Authentication
 
 - Protect routes with JWT.
@@ -160,7 +183,7 @@ A RESTful backend API for managing a library system with user authentication, bo
 ## Logging & Error Handling
 
 The project uses **Pino** and **Pino-http** for high-performance logging. All controller actions are wrapped in `try-catch` blocks to ensure:
-- **Global Error Handling:** All errors return a standardized `500` JSON response.
+- **Global Error Handling:** All errors return a standardized `{ success: false, message: "..." }` response with a `500` status code.
 - **Traceability:** Errors are logged with full stack traces for easier debugging.
 - **Activity Monitoring:** Key actions (CRUD operations) are logged at `info` level, while detailed flow is at `debug` level.
 
