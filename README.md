@@ -31,7 +31,8 @@ A RESTful backend API for managing a library system with user authentication, bo
 - **Database:** PostgreSQL
 - **ORM:** Prisma ORM
 - **Auth:** bcryptjs / JSON Web Tokens
-- **Logging:** Pino & Pino-pretty
+- **File Upload:** Multer
+- **Logging:** Pino, Pino-http & Pino-pretty
 - **Cloud Storage:** Cloudinary (for book covers)
 - **Validation:** Express-validator
 
@@ -43,11 +44,12 @@ A RESTful backend API for managing a library system with user authentication, bo
 - **Categories:** Group books into categories.
 - **Profiles:** Detailed user profiles linked to accounts.
 - **Borrowings:** Track book loans, manage availability, and handle returns.
+- **Reviews:** Users can leave ratings and comments on books.
 - **Logging:** Comprehensive system logs for debugging and monitoring.
 
 ## Requirements
 
-- Node.js 16+
+- Node.js 18+
 - PostgreSQL database
 - Cloudinary Account (for image uploads)
 - npm
@@ -95,6 +97,7 @@ A RESTful backend API for managing a library system with user authentication, bo
 
 - `npm run dev` — start the app with `nodemon`
 - `npm run seed` — run the Prisma seed script
+- `npm run build` — generate Prisma client
 
 ## API Endpoints
 
@@ -112,33 +115,38 @@ A RESTful backend API for managing a library system with user authentication, bo
 
 ### Books
 - `GET /books` — get all books (includes cover URLs)
+- `GET /books/search` — search for books by title or author
 - `GET /books/:id` — get a book by ID
-- `POST /books` — create a book (supports file upload)
-- `PUT /books/:id` — update a book (manages old cover deletion)
-- `DELETE /books/:id` — delete a book
+- `GET /books/:id/reviews` — get reviews for a specific book
+- `POST /books` — create a book (Admin Only, supports file upload)
+- `PUT /books/:id` — update a book (Admin Only, manages old cover deletion)
+- `DELETE /books/:id` — delete a book (Admin Only)
 
 ### Categories
 - `GET /categories` — get all categories
 - `GET /categories/:id` — get a category by ID
 - `GET /categories/:id/books` — get books in a category
-- `POST /categories` — create a category
-- `PUT /categories/:id` — update a category
-- `DELETE /categories/:id` — delete a category
+- `POST /categories` — create a category (Admin Only)
+- `PUT /categories/:id` — update a category (Admin Only)
+- `DELETE /categories/:id` — delete a category (Admin Only)
 
-### Profiles
+### Profiles (Admin Only)
 - `GET /profiles` — get all profiles
 - `GET /profiles/:id` — get a profile by ID
 - `POST /profiles` — create a profile for a user
 - `PUT /profiles/:id` — update a profile
 - `DELETE /profiles/:id` — delete a profile
 
-### Borrowings
+### Borrowings (Admin Only)
 - `GET /borrowings` — get all borrowings (includes user and book info)
 - `GET /borrowings/:id` — get a borrowing by ID
 - `POST /borrowings` — create a borrowing record (automatically marks book unavailable)
 - `PUT /borrowings/:id` — update a borrowing record (handles book availability swaps)
 - `PUT /borrowings/:id/return` — return a book (marks book available)
 - `DELETE /borrowings/:id` — delete a borrowing record
+
+### Reviews
+- `POST /reviews` — create a review for a book (Authenticated Users)
 
 ## Authentication
 
@@ -147,11 +155,11 @@ A RESTful backend API for managing a library system with user authentication, bo
   ```http
   Authorization: Bearer <token>
   ```
-- Admin-only routes are protected by `admin.middleware.js`.
+- Admin-only routes are protected by `admin.middleware.js` or via route prefixing in `index.route.js`.
 
 ## Logging & Error Handling
 
-The project uses **Pino** for high-performance logging. All controller actions are wrapped in `try-catch` blocks to ensure:
+The project uses **Pino** and **Pino-http** for high-performance logging. All controller actions are wrapped in `try-catch` blocks to ensure:
 - **Global Error Handling:** All errors return a standardized `500` JSON response.
 - **Traceability:** Errors are logged with full stack traces for easier debugging.
 - **Activity Monitoring:** Key actions (CRUD operations) are logged at `info` level, while detailed flow is at `debug` level.

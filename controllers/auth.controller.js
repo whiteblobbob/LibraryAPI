@@ -7,7 +7,7 @@ import logger from '../configs/logger.config.js'
 
 export const register = async (req, res) => {
   try {
-    logger.debugger('register: Started')
+    logger.debug('register: Started')
     
     const validationErrors = validationResult(req)
 
@@ -47,7 +47,7 @@ export const register = async (req, res) => {
 
     return res.status(201).json(user)
   } catch (error) {
-    logger.error('Failed to register', { error })
+    logger.error({ error }, 'Failed to register')
     res.status(500).json("An error has occured while registering")
   }
 }

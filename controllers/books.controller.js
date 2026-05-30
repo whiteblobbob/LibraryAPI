@@ -19,6 +19,7 @@ export const getBooks = async (req, res) => {
     })
     logger.debug('Generated cover URLs for all books')
 
+    logger.info('Books retreived successfully')
     return res.status(200).json(books)
   } catch (e) {
     logger('Failed to retreive books', { error: e })
@@ -55,6 +56,82 @@ export const getBookById = async (req, res) => {
   } catch (error) {
     logger.error('Failed to retreive a book', { error })
     res.status(500).json("An error has occured while retreiving a book")
+  }
+}
+
+export const getReviews = async (req, res) => {
+  try {
+    logger.debug('getReviews: Started')
+
+    const id = parseInt(req.params.id)
+
+    if (isNaN(id)) {
+      return res.status(400).json("Missing or invalid parameter(s)")
+    }
+
+    const book = await prisma.books.findUnique({
+      where: { id },
+      include: {
+        reviews: { include: {
+          user: { omit: { password: true } } 
+        } }
+      }
+    })
+
+    if (!book) {
+      logger.warn('Book not found', { id })
+      return res.status(404).json("Book not found")
+    }
+
+    logger.info('Book retreived successfully', { bookId: id })
+
+    return res.status(200).json(book)
+  } catch (error) {
+    logger.error('Failed to retreive a book', { error })
+    res.status(500).json("An error has occured while retreiving a book")
+  }
+}
+
+export const searchBooks = async (req, res) => {
+  try {
+    logger.debug('searchBooks: Started')
+
+    const validationErrors = validationResult(req)
+
+    if (!validationErrors.isEmpty()) {
+      logger.warn('Validation failed', { errors: validationErrors.array() })
+      return res.status(400).json(validationErrors.array())
+    }
+
+    let { title, author, page } = req.query
+    page = parseInt(page)
+    page = (isNaN(page) || page < 1) ? 1 : page
+
+    const books = await prisma.books.findMany({
+      where: {
+        title: { contains: title, mode: 'insensitive' },
+        author: { contains: author, mode: 'insensitive' }
+      },
+      take: 20,
+      skip: 20 * (page - 1)
+    });
+
+    logger.debug({ title, author }, 'Filtered books in database')
+
+    books.forEach(book => {
+      if (book.cloudinaryId) {
+        book.coverUrl = getFileUrl(book.cloudinaryId)
+      } else {
+        book.coverUrl = null
+      }
+    })
+    logger.debug('Generated cover URLs for all books')
+
+    logger.info('Books retreived successfully')
+    return res.status(200).json(books)
+  } catch (error) {
+    logger.error({ error }, 'Failed to search books')
+    res.status(500).json("An error has occured while searching books")
   }
 }
 

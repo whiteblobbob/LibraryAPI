@@ -7,6 +7,7 @@ import { borrowingsRouter } from './borrowings.route.js'
 import { authRouter } from './auth.route.js'
 import { authenticateToken } from '../middlewares/auth.middleware.js'
 import { authorizeAdmin } from '../middlewares/admin.middleware.js'
+import { reviewsRouter } from './reviews.route.js'
 
 const router = express.Router()
 
@@ -20,5 +21,6 @@ router.use('/profiles', authenticateToken, authorizeAdmin, profilesRouter)
 router.use('/categories', authenticateToken, categoriesRouter)
 router.use('/borrowings', authenticateToken, authorizeAdmin, borrowingsRouter)
 router.use('/auth', authRouter)
+router.use('/reviews', authenticateToken, reviewsRouter)
 
 export default router
