@@ -30,10 +30,10 @@ export const getBorrowings = async (req, res) => {
     })
 
     logger.info('Retrieved borrowings from database')
-    return res.status(200).json(borrowings)
+    return res.status(200).json({ success: true, data: borrowings })
   } catch (error) {
     logger.error('Failed to retrieve borrowings', { error })
-    return res.status(500).json("An error has occurred while retrieving borrowings")
+    return res.status(500).json({ success: false, message: "An error has occurred while retrieving borrowings" })
   }
 }
 
@@ -44,7 +44,7 @@ export const getBorrowingById = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid borrowing ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const borrowing = await prisma.borrowings.findUnique({
@@ -59,14 +59,14 @@ export const getBorrowingById = async (req, res) => {
 
     if (!borrowing) {
       logger.warn('Borrowing not found', { id })
-      return res.status(404).json("Borrowing not found")
+      return res.status(404).json({ success: false, message: "Borrowing not found" })
     }
 
     logger.info('Borrowing retrieved successfully', { id })
-    return res.status(200).json(borrowing)
+    return res.status(200).json({ success: true, data: borrowing })
   } catch (error) {
     logger.error('Failed to retrieve borrowing', { error })
-    return res.status(500).json("An error has occurred while retrieving borrowing")
+    return res.status(500).json({ success: false, message: "An error has occurred while retrieving borrowing" })
   }
 }
 
@@ -77,7 +77,7 @@ export const createBorrowing = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const userId = parseInt(req.body.userId)
@@ -85,18 +85,18 @@ export const createBorrowing = async (req, res) => {
 
     if (!(await isUserExists(userId))) {
       logger.warn('User not found', { userId })
-      return res.status(404).json("User not found")
+      return res.status(404).json({ success: false, message: "User not found" })
     }
 
     const book = await isBookExists(bookId)
     if (!book) {
       logger.warn('Book not found', { bookId })
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     if (!book.available) {
       logger.warn('Book not available', { bookId })
-      return res.status(409).json("Book is already borrowed")
+      return res.status(409).json({ success: false, message: "Book is already borrowed" })
     }
 
     await prisma.borrowings.create({
@@ -116,10 +116,10 @@ export const createBorrowing = async (req, res) => {
     })
 
     logger.info('Borrowing created successfully', { userId, bookId })
-    return res.status(201).json("Success")
+    return res.status(201).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to create borrowing', { error })
-    return res.status(500).json("An error has occurred while creating borrowing")
+    return res.status(500).json({ success: false, message: "An error has occurred while creating borrowing" })
   }
 }
 
@@ -130,21 +130,21 @@ export const updateBorrowing = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid borrowing ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const validationErrors = validationResult(req)
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const borrowing = await isBorrowingExists(id)
 
     if (!borrowing) {
       logger.warn('Borrowing not found', { id })
-      return res.status(404).json("Borrowing not found")
+      return res.status(404).json({ success: false, message: "Borrowing not found" })
     }
 
     const userId = parseInt(req.body.userId)
@@ -152,12 +152,12 @@ export const updateBorrowing = async (req, res) => {
 
     if (!(await isUserExists(userId))) {
       logger.warn('User not found', { userId })
-      return res.status(404).json("User not found")
+      return res.status(404).json({ success: false, message: "User not found" })
     }
 
     if (!(await isBookExists(bookId))) {
       logger.warn('Book not found', { bookId })
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     if (borrowing.bookId !== bookId) {
@@ -183,10 +183,10 @@ export const updateBorrowing = async (req, res) => {
     })
 
     logger.info('Borrowing updated successfully', { id })
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to update borrowing', { error })
-    return res.status(500).json("An error has occurred while updating borrowing")
+    return res.status(500).json({ success: false, message: "An error has occurred while updating borrowing" })
   }
 }
 
@@ -197,7 +197,7 @@ export const returnBook = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid borrowing ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const borrowing = await prisma.borrowings.findUnique({
@@ -206,12 +206,12 @@ export const returnBook = async (req, res) => {
 
     if (!borrowing) {
       logger.warn('Borrowing not found', { id })
-      return res.status(404).json("Borrowing not found")
+      return res.status(404).json({ success: false, message: "Borrowing not found" })
     }
 
     if (borrowing.returnedAt) {
       logger.warn('Book already returned', { id })
-      return res.status(409).json("Book already returned")
+      return res.status(409).json({ success: false, message: "Book already returned" })
     }
 
     await prisma.borrowings.update({
@@ -225,10 +225,10 @@ export const returnBook = async (req, res) => {
     })
 
     logger.info('Book returned successfully', { id })
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to return book', { error })
-    return res.status(500).json("An error has occurred while returning book")
+    return res.status(500).json({ success: false, message: "An error has occurred while returning book" })
   }
 }
 
@@ -239,7 +239,7 @@ export const deleteBorrowing = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid borrowing ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const borrowing = await prisma.borrowings.findUnique({
@@ -248,7 +248,7 @@ export const deleteBorrowing = async (req, res) => {
 
     if (!borrowing) {
       logger.warn('Borrowing not found', { id })
-      return res.status(404).json("Borrowing not found")
+      return res.status(404).json({ success: false, message: "Borrowing not found" })
     }
 
     await prisma.borrowings.delete({
@@ -263,9 +263,9 @@ export const deleteBorrowing = async (req, res) => {
     }
 
     logger.info('Borrowing deleted successfully', { id })
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to delete borrowing', { error })
-    return res.status(500).json("An error has occurred while deleting borrowing")
+    return res.status(500).json({ success: false, message: "An error has occurred while deleting borrowing" })
   }
 }

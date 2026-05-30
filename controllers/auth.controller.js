@@ -13,7 +13,7 @@ export const register = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const { name, email, password } = req.body
@@ -23,7 +23,7 @@ export const register = async (req, res) => {
 
     if (count > 0) {
       logger.warn('Email already in use', { email })
-      return res.status(409).json("Email already in use")
+      return res.status(409).json({ success: false, message: "Email already in use" })
     }
 
     const hashedPassword = bcrypt.hashSync(password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
@@ -45,10 +45,10 @@ export const register = async (req, res) => {
 
     logger.info('Registered successfully', { name, email })
 
-    return res.status(201).json(user)
+    return res.status(201).json({ success: true, data: user })
   } catch (error) {
     logger.error({ error }, 'Failed to register')
-    res.status(500).json("An error has occured while registering")
+    res.status(500).json({ success: false, message: "An error has occured while registering" })
   }
 }
 
@@ -60,7 +60,7 @@ export const login = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const { email, password } = req.body
@@ -68,7 +68,7 @@ export const login = async (req, res) => {
 
     if (!(user && bcrypt.compareSync(password, user.password))) {
       logger.warn('Invalid credentials', { email })
-      return res.status(401).json("Invalid credentials")
+      return res.status(401).json({ success: false, message: "Invalid credentials" })
     }
 
     const token = jwt.sign(
@@ -86,9 +86,9 @@ export const login = async (req, res) => {
 
     logger.info('Logged in successfully', { email })
 
-    return res.status(200).json({ user, token })
+    return res.status(200).json({ success: true, data: { user, token } })
   } catch (error) {
     logger.error('Failed to login', { error })
-    res.status(500).json("An error has occured while logging in")
+    res.status(500).json({ success: false, message: "An error has occured while logging in" })
   }
 }

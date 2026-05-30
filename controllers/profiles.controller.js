@@ -20,10 +20,10 @@ export const getProfiles = async (req, res) => {
     })
     logger.debug('Generated avatar URLs for all profiles')
     
-    return res.status(200).json(profiles)
+    return res.status(200).json({ success: true, data: profiles })
   } catch (error) {
     logger.error('Failed to retrieve profiles', { error })
-    return res.status(500).json("An error has occurred while retrieving profiles")
+    return res.status(500).json({ success: false, message: "An error has occurred while retrieving profiles" })
   }
 }
 
@@ -34,14 +34,14 @@ export const getProfileById = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid profile ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const profile = await prisma.profiles.findUnique({ where: { id } })
 
     if (!profile) {
       logger.warn('Profile not found', { id })
-      return res.status(404).json("Profile not found")
+      return res.status(404).json({ success: false, message: "Profile not found" })
     }
 
     if (profile.cloudinaryId) {
@@ -52,10 +52,10 @@ export const getProfileById = async (req, res) => {
     }
 
     logger.info('Profile retrieved successfully', { id })
-    return res.status(200).json(profile)
+    return res.status(200).json({ success: true, data: profile })
   } catch (error) {
     logger.error('Failed to retrieve profile', { error })
-    return res.status(500).json("An error has occurred while retrieving profile")
+    return res.status(500).json({ success: false, message: "An error has occurred while retrieving profile" })
   }
 }
 
@@ -67,7 +67,7 @@ export const createProfile = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const userId = parseInt(req.body.userId)
@@ -75,7 +75,7 @@ export const createProfile = async (req, res) => {
 
     if (isNaN(userId)) {
       logger.warn('Invalid user ID', { userId: req.body.userId })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const userCount = await prisma.users.count({
@@ -84,7 +84,7 @@ export const createProfile = async (req, res) => {
 
     if (userCount < 1) {
       logger.warn('User not found for profile creation', { userId })
-      return res.status(404).json("User not found")
+      return res.status(404).json({ success: false, message: "User not found" })
     }
 
     const result = await prisma.profiles.create({
@@ -96,10 +96,10 @@ export const createProfile = async (req, res) => {
     })
 
     logger.info('Profile created successfully', { profileId: result.id, userId })
-    return res.status(201).json("Success")
+    return res.status(201).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to create profile', { error })
-    return res.status(500).json("An error has occurred while creating profile")
+    return res.status(500).json({ success: false, message: "An error has occurred while creating profile" })
   }
 }
 
@@ -111,7 +111,7 @@ export const addAvatar = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const id = parseInt(req.params.id)
@@ -119,14 +119,14 @@ export const addAvatar = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn({ profileId: id }, 'Invalid profile ID')
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const profile = await prisma.profiles.findUnique({ where: { id } })
 
     if (!profile) {
       logger.warn({ profileId: id }, 'Profile not found')
-      return res.status(404).json('Proifle not found')
+      return res.status(404).json({ success: false, message: 'Proifle not found' })
     }
 
     // delete old avatar if exists
@@ -150,11 +150,11 @@ export const addAvatar = async (req, res) => {
     })
 
     logger.info({ profileId: id, cloudinaryId }, 'Added an avatar successfully')
-    return res.status(200).json('Success')
+    return res.status(200).json({ success: true, message: 'Success' })
     return 
   } catch (error) {
     logger.error({ error }, 'Failed to add an avatar')
-    return res.status(500).json("An error has occurred while adding an avatar")
+    return res.status(500).json({ success: false, message: "An error has occurred while adding an avatar" })
   }
 }
 
@@ -166,7 +166,7 @@ export const updateProfile = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const id = parseInt(req.params.id)
@@ -174,14 +174,14 @@ export const updateProfile = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid profile ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const profile = await prisma.profiles.findUnique({ where: { id } })
 
     if (!profile) {
       logger.warn('Profile not found', { id })
-      return res.status(404).json("Profile not found")
+      return res.status(404).json({ success: false, message: "Profile not found" })
     }
 
     await prisma.profiles.update({
@@ -190,10 +190,10 @@ export const updateProfile = async (req, res) => {
     })
 
     logger.info('Profile updated successfully', { id })
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to update profile', { error })
-    return res.status(500).json("An error has occurred while updating profile")
+    return res.status(500).json({ success: false, message: "An error has occurred while updating profile" })
   }
 }
 
@@ -204,22 +204,22 @@ export const deleteProfile = async (req, res) => {
 
     if (isNaN(id)) {
       logger.warn('Invalid profile ID', { id: req.params.id })
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const profile = await prisma.profiles.findUnique({ where: { id } })
 
     if (!profile) {
       logger.warn('Profile not found', { id })
-      return res.status(404).json("Profile not found")
+      return res.status(404).json({ success: false, message: "Profile not found" })
     }
 
     await prisma.profiles.delete({ where: { id } })
 
     logger.info('Profile deleted successfully', { id })
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to delete profile', { error })
-    return res.status(500).json("An error has occurred while deleting profile")
+    return res.status(500).json({ success: false, message: "An error has occurred while deleting profile" })
   }
 }

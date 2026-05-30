@@ -20,10 +20,10 @@ export const getBooks = async (req, res) => {
     logger.debug('Generated cover URLs for all books')
 
     logger.info('Books retreived successfully')
-    return res.status(200).json(books)
+    return res.status(200).json({ success: true, data: books })
   } catch (e) {
     logger('Failed to retreive books', { error: e })
-    res.status(500).json("An error has occured while retreiving books")
+    res.status(500).json({ success: false, message: "An error has occured while retreiving books" })
   }
 }
 
@@ -34,14 +34,14 @@ export const getBookById = async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const book = await prisma.books.findUnique({ where: { id } })
 
     if (!book) {
       logger.warn('Book not found', { id })
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     if (book.cloudinaryId) {
@@ -52,10 +52,10 @@ export const getBookById = async (req, res) => {
 
     logger.info('Book retreived successfully', { bookId: id })
 
-    return res.status(200).json(book)
+    return res.status(200).json({ success: true, data: book })
   } catch (error) {
     logger.error('Failed to retreive a book', { error })
-    res.status(500).json("An error has occured while retreiving a book")
+    res.status(500).json({ success: false, message: "An error has occured while retreiving a book" })
   }
 }
 
@@ -66,7 +66,7 @@ export const getReviews = async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const book = await prisma.books.findUnique({
@@ -80,15 +80,15 @@ export const getReviews = async (req, res) => {
 
     if (!book) {
       logger.warn('Book not found', { id })
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     logger.info('Book retreived successfully', { bookId: id })
 
-    return res.status(200).json(book)
+    return res.status(200).json({ success: true, data: book })
   } catch (error) {
     logger.error('Failed to retreive a book', { error })
-    res.status(500).json("An error has occured while retreiving a book")
+    res.status(500).json({ success: false, message: "An error has occured while retreiving a book" })
   }
 }
 
@@ -100,7 +100,7 @@ export const searchBooks = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     let { title, author, page } = req.query
@@ -128,10 +128,10 @@ export const searchBooks = async (req, res) => {
     logger.debug('Generated cover URLs for all books')
 
     logger.info('Books retreived successfully')
-    return res.status(200).json(books)
+    return res.status(200).json({ success: true, data: books })
   } catch (error) {
     logger.error({ error }, 'Failed to search books')
-    res.status(500).json("An error has occured while searching books")
+    res.status(500).json({ success: false, message: "An error has occured while searching books" })
   }
 }
 
@@ -143,7 +143,7 @@ export const createBook = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const categoryId = parseInt(req.body.categoryId)
@@ -153,7 +153,7 @@ export const createBook = async (req, res) => {
 
     if (!category) {
       logger.warn('Category not found', { categoryId })
-      return res.status(404).json("Category not found")
+      return res.status(404).json({ success: false, message: "Category not found" })
     }
 
     const cover = req.file
@@ -182,10 +182,10 @@ export const createBook = async (req, res) => {
 
     logger.info('Book created successfully', { bookId: result.id })
 
-    res.status(201).json("Success")
+    res.status(201).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to create a book', { error })
-    res.status(500).json("An error has occured while creating a book")
+    res.status(500).json({ success: false, message: "An error has occured while creating a book" })
   }
 }
 
@@ -197,7 +197,7 @@ export const updateBook = async (req, res) => {
 
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const id = parseInt(req.params.id)
@@ -209,14 +209,14 @@ export const updateBook = async (req, res) => {
 
     if (!book) {
       logger.warn('Book not found', { bookId: id } )
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     const category = await prisma.categories.findUnique({ where: { id: categoryId } })
 
     if (!category) {
       logger.warn('Category not found', { categoryId })
-      return res.status(404).json("Category not found")
+      return res.status(404).json({ success: false, message: "Category not found" })
     }
 
     const cover = req.file
@@ -252,10 +252,10 @@ export const updateBook = async (req, res) => {
 
     logger.info('Book updated successfully')
 
-    return res.status(404).json("Success")
+    return res.status(404).json({ success: false, message: "Success" })
   } catch (error) {
     logger.error('Failed to update a book', { error })
-    res.status(500).json("An error has occured while updating a book")
+    res.status(500).json({ success: false, message: "An error has occured while updating a book" })
   }
 }
 
@@ -266,14 +266,14 @@ export const deleteBook = async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (isNaN(id)) {
-      return res.status(400).json("Missing or invalid parameter(s)")
+      return res.status(400).json({ success: false, message: "Missing or invalid parameter(s)" })
     }
 
     const book = await prisma.books.findUnique({ where: { id } })
 
     if (!book) {
       logger.warn('Book not found', { bookId: id })
-      return res.status(404).json("Book not found")
+      return res.status(404).json({ success: false, message: "Book not found" })
     }
 
     if (book.cloudinaryId) {
@@ -283,9 +283,9 @@ export const deleteBook = async (req, res) => {
     await prisma.books.delete({ where: { id } })
 
     logger.info('Book deleted successfully')
-    return res.status(200).json("Success")
+    return res.status(200).json({ success: true, message: "Success" })
   } catch (error) {
     logger.error('Failed to delete a book', { error })
-    res.status(500).json("An error has occured while deleting a book")
+    res.status(500).json({ success: false, message: "An error has occured while deleting a book" })
   }
 }

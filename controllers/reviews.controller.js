@@ -11,7 +11,7 @@ export const createReview = async (req, res) => {
     if (!validationErrors.isEmpty()) {
       logger.warn('Validation failed', { errors: validationErrors.array() })
 
-      return res.status(400).json(validationErrors.array())
+      return res.status(400).json({ success: false, errors: validationErrors.array() })
     }
 
     const { rating, comment, userId, bookId } = req.body
@@ -20,14 +20,14 @@ export const createReview = async (req, res) => {
 
     if (!user) {
       logger.warn('User not found', { userId })
-      return res.status(404).json('User not found')
+      return res.status(404).json({ success: false, message: 'User not found' })
     }
 
     const book = await prisma.books.findUnique({ where: { id: bookId } })
 
     if (!book) {
       logger.warn('Book not found', { bookId })
-      return res.status(404).json('Book not found')
+      return res.status(404).json({ success: false, message: 'Book not found' })
     }
 
     logger.debug({ rating, comment, userId, bookId }, 'Creating review in database')
@@ -44,9 +44,9 @@ export const createReview = async (req, res) => {
     } })
 
     logger.info('Review created successfully', { reviewId: result.id })
-    return res.status(201).json('Success')
+    return res.status(201).json({ success: true, message: 'Success' })
   } catch (error) {
     logger.error({ error }, 'Failed to create a review')
-    res.status(500).json("An error has occured while creating a review")
+    res.status(500).json({ success: false, message: "An error has occured while creating a review" })
   }
 }
