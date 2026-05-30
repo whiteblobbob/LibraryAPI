@@ -48,6 +48,7 @@ model Profiles {
   address String?
   phone String?
   createdAt DateTime @default(now())
+  cloudinaryId String?
 
   // relation
   user Users @relation(fields: [userId], references: [id])
